@@ -1,0 +1,39 @@
+---
+# tasks file for mysql_db
+- name: 2. Install MySQL database
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - mysql-server
+    - mysql-client
+  ignore_errors: true
+
+- name: 3. start database
+  service:
+    name: mysql
+    state: started
+    enabled: true
+  ignore_errors: true
+#Configure Database
+- name: add  Database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: add user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    priv: "*.*:ALL"
+    state: present
+    host: "%"
+
+- name: Create employee_db table
+  mysql_query:
+    login_db: "{{ db_name }}"
+    query: CREATE TABLE employees (name VARCHAR(20));
+
+- name: Insert data into Database
+  mysql_query:
+    login_db: "{{ db_name }}"
+    query: INSERT INTO employees VALUES ('JOHN');
